@@ -1,12 +1,11 @@
 import os, sys
 
 WALL = '%'
-GHOST = 'W'
+GHOST = ['W', 'X', 'Y', 'Z']
 PACMAN = 'P'
 FOOD = '.'
 EMPTY = ' '
 
-GHOSTNAME = ['W', 'X', 'Y', 'Z']
 ENSW = {'E': (0,1), 'N': (-1,0), 'S': (1,0), 'W': (0,-1)}
 
 EAT_FOOD_SCORE = 10
@@ -24,8 +23,8 @@ class Problem:
     def pacWin(self) -> bool:
         return self.foodlocs == []
     def pacLose(self) -> bool:
-        for ghost in self.ghostlocs:
-            if self.pacmanloc == self.ghostlocs[ghost]:
+        for gloc in self.ghostlocs.values():
+            if self.pacmanloc == gloc:
                 return True
         return False
 
@@ -37,7 +36,7 @@ class Problem:
                     feaD.append(di)
         else:
             for di in ENSW:
-                if self.layout[self.ghostlocs[who][0]+ENSW[di][0]][self.ghostlocs[who][1]+ENSW[di][1]] not in (WALL, GHOST):
+                if self.layout[self.ghostlocs[who][0]+ENSW[di][0]][self.ghostlocs[who][1]+ENSW[di][1]] not in [WALL] + GHOST:
                     feaD.append(di)
         return tuple(feaD)
 
@@ -47,8 +46,8 @@ class Problem:
             newLoc = self.layout[self.pacmanloc[0]+ENSW[direction][0]][self.pacmanloc[1]+ENSW[direction][1]]
             self.layout[self.pacmanloc[0]+ENSW[direction][0]][self.pacmanloc[1]+ENSW[direction][1]] = PACMAN
             self.pacmanloc = [self.pacmanloc[0]+ENSW[direction][0], self.pacmanloc[1]+ENSW[direction][1]]
-            if newLoc == GHOST:
-                self.layout[self.pacmanloc[0]][self.pacmanloc[1]] = GHOST
+            if newLoc in GHOST:
+                self.layout[self.pacmanloc[0]][self.pacmanloc[1]] = newLoc
                 return PACMAN_MOVING_SCORE+PACMAN_EATEN_SCORE
             elif newLoc == FOOD:
                 self.foodlocs.remove([self.pacmanloc[0], self.pacmanloc[1]])
@@ -62,7 +61,7 @@ class Problem:
             else:
                 self.layout[self.ghostlocs[who][0]][self.ghostlocs[who][1]] = EMPTY
             newLoc = self.layout[self.ghostlocs[who][0]+ENSW[direction][0]][self.ghostlocs[who][1]+ENSW[direction][1]]
-            self.layout[self.ghostlocs[who][0]+ENSW[direction][0]][self.ghostlocs[who][1]+ENSW[direction][1]] = GHOST
+            self.layout[self.ghostlocs[who][0]+ENSW[direction][0]][self.ghostlocs[who][1]+ENSW[direction][1]] = who
             self.ghostlocs[who] = [self.ghostlocs[who][0]+ENSW[direction][0], self.ghostlocs[who][1]+ENSW[direction][1]]
             if newLoc == PACMAN:
                 return PACMAN_EATEN_SCORE
@@ -117,15 +116,15 @@ def read_layout_problem(file_path):
                     row_list.append(line[col])
                 if line[col] == PACMAN:
                     pacmanloc = [row, col]
-                elif line[col] == GHOST:
-                    ghostlocs[GHOSTNAME[ghostnum]] = [row, col]
+                elif line[col] in GHOST:
+                    ghostlocs[line[col]] = [row, col]
                     ghostnum += 1
                 elif line[col] == FOOD:
                     foodlocs.append([row, col])
             row += 1
             layout.append(row_list)
             line = file.readline()
-    problem = Problem(seed, layout, pacmanloc, ghostlocs, foodlocs)
+    problem = Problem(seed, layout, pacmanloc, dict(sorted(ghostlocs.items())), foodlocs)
     return problem
 
 if __name__ == "__main__":
