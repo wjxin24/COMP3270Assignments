@@ -1,11 +1,54 @@
 import sys, parse
-import time, os, copy
+import time, os, copy, random
 
 def better_play_single_ghosts(problem):
     #Your p2 code here
-    solution = ''
-    winner = 'Ghost'
-    return solution, winner
+    solution = parse.Solution(problem.seed, \
+        [parse.State(None, None, copy.deepcopy(problem.layout), 0)], None)
+    score = 0
+    pacTurn = True
+    while (problem.pacWin()==False and problem.pacLose()==False):
+        if pacTurn == True:
+            feasible_direction = problem.feasibleDirection("P")
+            if len(feasible_direction) == 1:
+                best_direction = feasible_direction[0]
+            else:
+                best_eval_score = 0
+                for di in feasible_direction:
+                    eval_score = eval_func(problem, di)
+                    if  eval_score >= best_eval_score:
+                        best_eval_score = eval_score
+                        best_direction = di
+            score += problem.move("P", best_direction)
+            state = parse.State("P", best_direction, copy.deepcopy(problem.layout), score)
+            solution.statelist.append(state)
+            pacTurn = False
+        else:
+            rand_di = random.choice(problem.feasibleDirection("W"))
+            score += problem.move("W", rand_di)
+            state = parse.State("W", rand_di, copy.deepcopy(problem.layout), score)
+            solution.statelist.append(state)
+            pacTurn = True
+    solution.winner = "Pacman" if problem.pacWin() else "Ghost"
+    return solution.output(), solution.winner
+
+def eval_func(problem: parse.Problem, direction):
+    new_pacman_loc = [problem.pacmanloc[0]+parse.ENSW[direction][0],\
+                        problem.pacmanloc[1]+parse.ENSW[direction][1]]
+    dist_to_closest_ghost = 100000
+    dist_to_closest_food = 100000
+    for ghost_loc in problem.ghostlocs.values():
+        dist = abs(new_pacman_loc[0]-ghost_loc[0]) + abs(new_pacman_loc[1]-ghost_loc[1])
+        if dist < dist_to_closest_ghost:
+            dist_to_closest_ghost = dist
+    for food_loc in problem.foodlocs:
+        dist = abs(new_pacman_loc[0]-food_loc[0]) + abs(new_pacman_loc[1]-food_loc[1])
+        if dist < dist_to_closest_food:
+            dist_to_closest_food = dist
+    # if distance to closest ghost is less than 2, run away from ghost
+    if dist_to_closest_ghost<2: return 0
+    # if distance to closest ghost is larger than 4, focus on food first
+    return min(dist_to_closest_ghost,4) + 3/(dist_to_closest_food+1)
 
 if __name__ == "__main__":
     test_case_id = int(sys.argv[1])    
