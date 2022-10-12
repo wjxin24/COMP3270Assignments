@@ -5,26 +5,25 @@ def random_play_multiple_ghosts(problem: parse.Problem):
     #Your p3 code here
     solution = parse.Solution(problem.seed, \
         [parse.State(None, None, deepcopy(problem.layout), 0)], None)
-    score = 0
     random.seed(problem.seed, version=1)
     pacTurn = True
     while (problem.pacWin()==False and problem.pacLose()==False):
         if pacTurn == True:
             rand_di = random.choice(problem.feasibleDirection("P"))
-            score += problem.move("P", rand_di)
-            state = parse.State("P", rand_di, deepcopy(problem.layout), score)
+            problem.move("P", rand_di)
+            state = parse.State("P", rand_di, deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = False
         else:
             for ghost in problem.ghostlocs.keys():
                 feasible_direction = problem.feasibleDirection(ghost)
                 if feasible_direction==():
-                    state = parse.State(ghost, '', deepcopy(problem.layout), score)
+                    state = parse.State(ghost, '', deepcopy(problem.layout), problem.score)
                     solution.statelist.append(state)
                 else:
                     rand_di = random.choice(feasible_direction)
-                    score += problem.move(ghost, rand_di)
-                    state = parse.State(ghost, rand_di, deepcopy(problem.layout), score)
+                    problem.move(ghost, rand_di)
+                    state = parse.State(ghost, rand_di, deepcopy(problem.layout), problem.score)
                     solution.statelist.append(state)
                     if problem.pacLose(): break
             pacTurn = True

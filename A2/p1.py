@@ -5,20 +5,19 @@ def random_play_single_ghost(problem: parse.Problem):
     #Your p1 code here
     solution = parse.Solution(problem.seed, \
         [parse.State(None, None, deepcopy(problem.layout), 0)], None)
-    score = 0
     random.seed(problem.seed, version=1)
     pacTurn = True
     while (problem.pacWin()==False and problem.pacLose()==False):
         if pacTurn == True:
             rand_di = random.choice(problem.feasibleDirection("P"))
-            score += problem.move("P", rand_di)
-            state = parse.State("P", rand_di, deepcopy(problem.layout), score)
+            problem.move("P", rand_di)
+            state = parse.State("P", rand_di, deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = False
         else:
             rand_di = random.choice(problem.feasibleDirection("W"))
-            score += problem.move("W", rand_di)
-            state = parse.State("W", rand_di, deepcopy(problem.layout), score)
+            problem.move("W", rand_di)
+            state = parse.State("W", rand_di, deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = True
     solution.winner = "Pacman" if problem.pacWin() else "Ghost"

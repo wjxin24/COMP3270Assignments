@@ -5,7 +5,6 @@ def better_play_single_ghosts(problem):
     #Your p2 code here
     solution = parse.Solution(problem.seed, \
         [parse.State(None, None, copy.deepcopy(problem.layout), 0)], None)
-    score = 0
     pacTurn = True
     while (problem.pacWin()==False and problem.pacLose()==False):
         if pacTurn == True:
@@ -19,14 +18,14 @@ def better_play_single_ghosts(problem):
                     if  eval_score >= best_eval_score:
                         best_eval_score = eval_score
                         best_direction = di
-            score += problem.move("P", best_direction)
-            state = parse.State("P", best_direction, copy.deepcopy(problem.layout), score)
+            problem.move("P", best_direction)
+            state = parse.State("P", best_direction, copy.deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = False
         else:
             rand_di = random.choice(problem.feasibleDirection("W"))
-            score += problem.move("W", rand_di)
-            state = parse.State("W", rand_di, copy.deepcopy(problem.layout), score)
+            problem.move("W", rand_di)
+            state = parse.State("W", rand_di, copy.deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = True
     solution.winner = "Pacman" if problem.pacWin() else "Ghost"

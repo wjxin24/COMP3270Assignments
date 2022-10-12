@@ -14,12 +14,13 @@ PACMAN_WIN_SCORE = 500
 PACMAN_MOVING_SCORE = -1
 
 class Problem:
-    def __init__(self, seed : int, layout : list, pacmanloc : list, ghostlocs : dict, foodlocs : list):
+    def __init__(self, seed : int, layout : list, pacmanloc : list, ghostlocs : dict, foodlocs : list, score: int):
         self.seed = seed
         self.layout = layout
         self.pacmanloc = pacmanloc
         self.ghostlocs = ghostlocs
         self.foodlocs = foodlocs
+        self.score = score
     def pacWin(self) -> bool:
         return self.foodlocs == []
     def pacLose(self) -> bool:
@@ -40,7 +41,7 @@ class Problem:
                     feaD.append(di)
         return tuple(feaD)
 
-    def move(self, who, direction) -> int:
+    def move(self, who, direction):
         if who == "P":
             self.layout[self.pacmanloc[0]][self.pacmanloc[1]] = EMPTY
             newLoc = self.layout[self.pacmanloc[0]+ENSW[direction][0]][self.pacmanloc[1]+ENSW[direction][1]]
@@ -48,13 +49,16 @@ class Problem:
             self.pacmanloc = [self.pacmanloc[0]+ENSW[direction][0], self.pacmanloc[1]+ENSW[direction][1]]
             if newLoc in GHOST:
                 self.layout[self.pacmanloc[0]][self.pacmanloc[1]] = newLoc
-                return PACMAN_MOVING_SCORE+PACMAN_EATEN_SCORE
+                self.score += PACMAN_MOVING_SCORE+PACMAN_EATEN_SCORE
+                return
             elif newLoc == FOOD:
                 self.foodlocs.remove([self.pacmanloc[0], self.pacmanloc[1]])
                 if self.pacWin():
-                    return PACMAN_MOVING_SCORE+EAT_FOOD_SCORE+PACMAN_WIN_SCORE
-                return PACMAN_MOVING_SCORE+EAT_FOOD_SCORE
-            return PACMAN_MOVING_SCORE
+                    self.score += PACMAN_MOVING_SCORE+EAT_FOOD_SCORE+PACMAN_WIN_SCORE
+                    return
+                self.score += PACMAN_MOVING_SCORE+EAT_FOOD_SCORE
+                return
+            self.score += PACMAN_MOVING_SCORE
         else:
             if [self.ghostlocs[who][0],self.ghostlocs[who][1]] in self.foodlocs:
                 self.layout[self.ghostlocs[who][0]][self.ghostlocs[who][1]] = FOOD
@@ -64,8 +68,8 @@ class Problem:
             self.layout[self.ghostlocs[who][0]+ENSW[direction][0]][self.ghostlocs[who][1]+ENSW[direction][1]] = who
             self.ghostlocs[who] = [self.ghostlocs[who][0]+ENSW[direction][0], self.ghostlocs[who][1]+ENSW[direction][1]]
             if newLoc == PACMAN:
-                return PACMAN_EATEN_SCORE
-            return 0
+                self.score += PACMAN_EATEN_SCORE
+            return
 
 class State:
     def __init__(self, player, direction, layout, score):
@@ -124,7 +128,7 @@ def read_layout_problem(file_path):
             row += 1
             layout.append(row_list)
             line = file.readline()
-    problem = Problem(seed, layout, pacmanloc, dict(sorted(ghostlocs.items())), foodlocs)
+    problem = Problem(seed, layout, pacmanloc, dict(sorted(ghostlocs.items())), foodlocs, 0)
     return problem
 
 if __name__ == "__main__":

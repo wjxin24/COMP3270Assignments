@@ -5,7 +5,6 @@ def better_play_mulitple_ghosts(problem):
     #Your p4 code here
     solution = parse.Solution(problem.seed, \
         [parse.State(None, None, copy.deepcopy(problem.layout), 0)], None)
-    score = 0
     pacTurn = True
     while (problem.pacWin()==False and problem.pacLose()==False):
         if pacTurn == True:
@@ -19,20 +18,20 @@ def better_play_mulitple_ghosts(problem):
                     if  eval_score >= best_eval_score:
                         best_eval_score = eval_score
                         best_direction = di
-            score += problem.move("P", best_direction)
-            state = parse.State("P", best_direction, copy.deepcopy(problem.layout), score)
+            problem.move("P", best_direction)
+            state = parse.State("P", best_direction, copy.deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = False
         else:
             for ghost in problem.ghostlocs.keys():
                 feasible_direction = problem.feasibleDirection(ghost)
                 if feasible_direction==():
-                    state = parse.State(ghost, '', copy.deepcopy(problem.layout), score)
+                    state = parse.State(ghost, '', copy.deepcopy(problem.layout), problem.score)
                     solution.statelist.append(state)
                 else:
                     rand_di = random.choice(feasible_direction)
-                    score += problem.move(ghost, rand_di)
-                    state = parse.State(ghost, rand_di, copy.deepcopy(problem.layout), score)
+                    problem.move(ghost, rand_di)
+                    state = parse.State(ghost, rand_di, copy.deepcopy(problem.layout), problem.score)
                     solution.statelist.append(state)
                     if problem.pacLose(): break
             pacTurn = True
