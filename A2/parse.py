@@ -99,6 +99,11 @@ class Solution:
         out += "WIN: {winner}".format(winner=self.winner)
         return out
 
+def opposite_direction(direction):
+    if direction == 'W': return 'E'
+    if direction == 'E': return 'W'
+    if direction == 'N': return 'S'
+    if direction == 'S': return 'N'
 
 def read_layout_problem(file_path):
     #Your p1 code here

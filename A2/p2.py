@@ -5,6 +5,7 @@ def better_play_single_ghosts(problem):
     #Your p2 code here
     solution = parse.Solution(problem.seed, \
         [parse.State(None, None, copy.deepcopy(problem.layout), 0)], None)
+    pacman_actions = [] # a list to record all the past actions of the pacman
     pacTurn = True
     while (problem.pacWin()==False and problem.pacLose()==False):
         if pacTurn == True:
@@ -12,13 +13,14 @@ def better_play_single_ghosts(problem):
             if len(feasible_direction) == 1:
                 best_direction = feasible_direction[0]
             else:
-                best_eval_score = 0
+                best_eval_score = -1000
                 for di in feasible_direction:
-                    eval_score = eval_func(problem, di)
-                    if  eval_score >= best_eval_score:
+                    eval_score = eval_func(problem, di, pacman_actions)
+                    if  eval_score > best_eval_score:
                         best_eval_score = eval_score
                         best_direction = di
             problem.move("P", best_direction)
+            pacman_actions.append(best_direction)
             state = parse.State("P", best_direction, copy.deepcopy(problem.layout), problem.score)
             solution.statelist.append(state)
             pacTurn = False
@@ -31,7 +33,7 @@ def better_play_single_ghosts(problem):
     solution.winner = "Pacman" if problem.pacWin() else "Ghost"
     return solution.output(), solution.winner
 
-def eval_func(problem: parse.Problem, direction):
+def eval_func(problem: parse.Problem, direction, pacman_actions):
     new_pacman_loc = [problem.pacmanloc[0]+parse.ENSW[direction][0],\
                         problem.pacmanloc[1]+parse.ENSW[direction][1]]
     dist_to_closest_ghost = 100000
@@ -45,9 +47,20 @@ def eval_func(problem: parse.Problem, direction):
         if dist < dist_to_closest_food:
             dist_to_closest_food = dist
     # if distance to closest ghost is less than 2, run away from ghost
-    if dist_to_closest_ghost<2: return 0
+    if dist_to_closest_ghost<2: return -500
+    # if pacman has been moving in loop, avoid repeated direction
+    if move_in_loop(pacman_actions, direction):
+        return -10
     # if distance to closest ghost is larger than 4, focus on food first
     return min(dist_to_closest_ghost,4) + 3/(dist_to_closest_food+1)
+
+# check if the pacman is move back and forth in loop for more than 2 times
+def move_in_loop(pacman_actions, direction):
+    if len(pacman_actions) < 4: return False
+    if pacman_actions[-1] == pacman_actions[-3] and pacman_actions[-2] == parse.opposite_direction(pacman_actions[-1])\
+         and pacman_actions[-2] == pacman_actions[-4] and direction == pacman_actions[-2]:
+            return True
+        
 
 if __name__ == "__main__":
     test_case_id = int(sys.argv[1])    
