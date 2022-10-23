@@ -117,10 +117,10 @@ def read_layout_problem(file_path):
         foodlocs = []
         row = 0
         line = file.readline()
-        cols = len(line)
         while line:
+            cols = len(line)
             row_list = []
-            for col in range(cols-1):
+            for col in range(cols):
                 if line[col] != '\n':
                     row_list.append(line[col])
                 if line[col] == PACMAN:
