@@ -130,6 +130,7 @@ def read_layout_problem(file_path):
                     ghostnum += 1
                 elif line[col] == FOOD:
                     foodlocs.append([row, col])
+            while row_list[-1]==' ': row_list = row_list[:-1]
             row += 1
             layout.append(row_list)
             line = file.readline()
