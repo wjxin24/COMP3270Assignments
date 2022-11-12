@@ -97,5 +97,33 @@ def read_grid_mdp_problem_p2(file_path):
 
 def read_grid_mdp_problem_p3(file_path):
     #Your p3 code here
-    problem = ''
+    with open(file_path, 'r') as file:
+        line = file.readline()
+        assert line.startswith("discount:")
+        discount = float(line.split()[1])
+        line = file.readline()
+        assert line.startswith("noise:")
+        noise = float(line.split()[1])
+        line = file.readline()
+        assert line.startswith("livingReward:")
+        livingReward = float(line.split()[1])
+        line = file.readline()
+        assert line.startswith("iterations:")
+        iterations = int(line.split()[1])
+        line = file.readline()
+        
+        assert line.startswith("grid:")
+        layout = []
+        valueState = []
+        policy = []
+        row = 0
+        line = file.readline()
+        while line:
+            row_list = line.split()
+            row += 1
+            valueState.append([0.00 for _ in range(len(row_list))])
+            policy.append(['#' for _ in range(len(row_list))])
+            layout.append(row_list)
+            line = file.readline()
+    problem = Problem(discount, noise, livingReward, iterations, layout, valueState, policy)
     return problem
