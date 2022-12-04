@@ -441,7 +441,16 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        legalJointPositions = list(itertools.product(self.legalPositions, repeat=gameState.getNumAgents()-1))
+        random.shuffle(legalJointPositions)
+        occurance = self.numParticles // len(legalJointPositions)
+        remainder = self.numParticles % len(legalJointPositions)
+        jointParticles = [i for i in legalJointPositions] * occurance
+        if remainder > 0:
+            for i in range(remainder):
+                jointParticles.append(legalJointPositions[i])
+        self.particles = jointParticles
+        # raiseNotDefined()
 
     def addGhostAgent(self, agent):
         """
